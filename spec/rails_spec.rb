@@ -124,6 +124,20 @@ describe NumbersController, :type => :controller do
             '<http://guybrush:3000/numbers?count=20&page=2>; rel="last", <http://guybrush:3000/numbers?count=20&page=2>; rel="next"')
         end
       end
+
+      context 'with script name' do
+        before do
+          request.script_name= "/script"
+          get :index, params: params
+        end
+
+        let(:params) { { count: 20 } }
+
+        it 'should use script name value to construct the links routes' do
+          expect(response.headers['Link']).to eq(
+            '<http://guybrush:3000/script/numbers?count=20&page=2>; rel="last", <http://guybrush:3000/script/numbers?count=20&page=2>; rel="next"')
+        end
+      end
     end
 
     context 'configured not to include the total' do
@@ -262,7 +276,7 @@ describe NumbersController, :type => :controller do
           end
         end
 
-        after :all do 
+        after :all do
           class Fixnum
             class << self
               undef_method :default_per_page, :per_page
@@ -295,7 +309,7 @@ describe NumbersController, :type => :controller do
       end
     end
 
-    context 'default per page in objects without paginator defaults' do 
+    context 'default per page in objects without paginator defaults' do
       it 'should not fail if model does not respond to per page' do
         get :index_with_no_per_page, params: {count: 100}
 
